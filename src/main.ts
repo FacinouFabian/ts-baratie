@@ -2,6 +2,9 @@ import readline from 'readline'
 import { createReadStream } from 'fs'
 import { join } from 'path'
 import Grid from './core/Grid'
+import Game from './core/Game'
+import Player from './core/Player'
+import { Point } from '../types'
 
 const map = 'ailumette.01.map'
 const mapPath = join('data', 'maps', map)
@@ -13,6 +16,12 @@ const rl = readline.createInterface({
 })
 
 let gridMap: Grid
+const game: Game = new Game({
+  players: [
+    new Player({ name: 'Golden', delete: (line: number, nb: number) => game.deleteAilumettes(line, nb) }),
+    new Player({ name: 'AI', delete: (line: number, nb: number) => game.deleteAilumettes(line, nb) }),
+  ],
+})
 
 let rowCount = 0
 let columnCount = 0
@@ -45,8 +54,15 @@ rl.on('line', line => {
   columnCount = 0
 })
 
-rl.on('close', () => {
-  gridMap.displayMap()
-  // get an ailumette and skip turn to the AI
-  gridMap.getNodeAt({ x: 5, y: 2 }).clearValue()
+rl.on('close', async () => {
+  // save the map to the game
+  game.setMap(gridMap)
+  // display the map
+  game.map?.displayMap()
+  // change player turn
+  game.setLastTurnWas(game.players[1])
+  // delete an ailumette from player 2
+  game.players[1].deleteAilumettes(1, 1)
+  // check if the ailumette has been deleted
+  console.log('Node:', game.map?.getNodeAt({ x: 6, y: 1 }))
 })

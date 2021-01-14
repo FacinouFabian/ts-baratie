@@ -1,3 +1,4 @@
+import { Point, Data } from '../../types'
 import Node from './Node'
 
 interface Parameters {
@@ -6,8 +7,8 @@ interface Parameters {
 }
 
 export default class Grid {
-  readonly width: number
-  readonly height: number
+  public width: number
+  public height: number
 
   // Nodes Grid
   private nodes: Node[][] = []
@@ -24,15 +25,9 @@ export default class Grid {
         this.nodes[y][x] = new Node({
           position: { x, y },
           value: '',
-          callback: () => this.nextTurn(),
         })
       }
     }
-  }
-
-  public nextTurn(): any {
-    console.log('Player has modified grid')
-    this.displayMap()
   }
 
   public displayMap(): void {
@@ -49,45 +44,43 @@ export default class Grid {
     return this.nodes[y][x]
   }
 
-  public getNeighbours(node: Node): Node[] {
-    const neighbours: Node[] = []
-    const { x, y } = node.position
+  // return all aillumettes of a line
+  public getNodesFromLine(line: number): Promise<Node[] | string> {
+    return new Promise((resolve, reject) => {
+      if (line > this.height) {
+        reject('This line is out of range')
+      } else {
+        const lineNodes: Node[] = []
+        for (let x = 0; x < this.width; x++) {
+          if (this.nodes[line][x].value == '|') {
+            const nodeValue = this.nodes[line][x]
+            lineNodes.push(nodeValue)
+          }
+        }
 
-    // ↑
-    if (this.isOnGrid({ y: y - 1, x })) {
-      const topNode = this.getNodeAt({ y: y - 1, x })
-      if (topNode && topNode.getIsWalkable()) {
-        neighbours.push(topNode)
+        if (lineNodes.length != 0) resolve(lineNodes)
+        else reject('There is no ailumettes on this line')
       }
-    }
-
-    // →
-    if (this.isOnGrid({ y, x: x + 1 })) {
-      const rightNode = this.getNodeAt({ y, x: x + 1 })
-      if (rightNode && rightNode.getIsWalkable()) {
-        neighbours.push(rightNode)
-      }
-    }
-
-    // ↓
-    if (this.isOnGrid({ y: y + 1, x })) {
-      const bottomNode = this.getNodeAt({ y: y + 1, x })
-      if (bottomNode && bottomNode.getIsWalkable()) {
-        neighbours.push(bottomNode)
-      }
-    }
-
-    // ←
-    if (this.isOnGrid({ y, x: x - 1 })) {
-      const leftNode = this.getNodeAt({ y, x: x - 1 })
-      if (leftNode && leftNode.getIsWalkable()) {
-        neighbours.push(leftNode)
-      }
-    }
-    return neighbours
+    })
   }
 
-  private isOnGrid({ x, y }: Point): boolean {
-    return x >= 0 && x < this.width && y >= 0 && y < this.height
+  // return a certain number of Nodes from an array of Nodes
+  public getLineNodes(lineNumber: number, nb: number): Promise<Data | string> {
+    return new Promise(async (resolve, reject) => {
+      this.getNodesFromLine(lineNumber)
+        .then(line => {
+          if (nb > line.length) {
+            reject('The number of ailumettes to delete is out of range')
+          }
+
+          if (nb == 0) reject('Please, delete at least one ailumette.')
+
+          if (typeof line != 'string') {
+            const action = { line: lineNumber, amount: nb }
+            resolve({ nodes: line.splice(0, nb), action })
+          }
+        })
+        .catch(err => reject(err))
+    })
   }
 }
