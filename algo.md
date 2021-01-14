@@ -1,0 +1,14 @@
+- 1 Prendre un fichier .map en entrée
+- 2 Lire le fichier .map
+- 3 Créer une grille/tableau avec les dimensions de la première ligne du fichier .map
+- 4 Lire toutes les autres lignes du fichier
+- 5 Pour chaque ligne, incrémenter variable indexVERTICAL de 1 et split sur ('') pour récupérer tous les éléments de cette ligne
+- 6 Parcourir le tableau split
+- 7 Pour chaque élément du tableau récupérer son indexHORIZONTAL
+- 8 Si élément vaut *, attribuer classe mur à la div [indexVERTICAL, indexHORIZONTAL]
+- 9 Sinon si élément vaut 1, attribuer classe entrée à la div [indexVERTICAL, indexHORIZONTAL]
+- 10 sinon si élément vaut 2, attribuer classe sortie à la div [indexVERTICAL, indexHORIZONTAL]
+- 11 Créer joueur
+- 12 Positionner joueur sur la div entrée
+- 13 Afficher la Map
+
