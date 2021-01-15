@@ -4,7 +4,7 @@ pp-ailumette Project 😪💔
 
 ## Launch the app with docker
 
-- Run `yarn buildocker`. It will run the `docker build` and `docker run` commands. Then you'll be able to see the app working directly
+- Run `yarn buildocker`. It will run the `docker build` and `docker run` commands. Then you should be able to see the app working directly
 
 ## Launch the app with node directly (without docker)
 
