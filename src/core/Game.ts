@@ -6,15 +6,17 @@ export default class Game {
   readonly players: Player[]
   private started: boolean
   private ended: boolean
+  private currentPlayer: string
   public map: Grid | null
-  public lastTurnWas: Partial<Player>
+  public lastTurnWas: string
 
   constructor({ players }: GameParameters) {
     this.players = players
     this.started = false
     this.ended = false
     this.map = null
-    this.lastTurnWas = { name: '' }
+    this.lastTurnWas = ''
+    this.currentPlayer = ''
   }
 
   public startGame(): void {
@@ -23,6 +25,10 @@ export default class Game {
 
   public endGame(): void {
     this.ended = true
+  }
+
+  public setCurrentPlayer(name: string): void {
+    this.currentPlayer = name
   }
 
   public getGameInfos(): GameInfo {
@@ -34,7 +40,7 @@ export default class Game {
     }
   }
 
-  public setLastTurnWas(player: Player): void {
+  public setLastTurnWas(player: string): void {
     this.lastTurnWas = player
   }
 
@@ -44,12 +50,19 @@ export default class Game {
 
   public nextTurn(): Player | undefined {
     const result: Player | undefined = this.players.find(player => {
-      return player.name != this.lastTurnWas.name
+      return player.name != this.lastTurnWas
     })
 
     return result != undefined ? result : undefined
   }
 
+  /**
+   * @name deleteAilumettes
+   * @description allows to delete ailumettes
+   * @param line the line
+   * @param nb the matches
+   * @return {Promise<void>}
+   */
   public async deleteAilumettes(line: number, nb: number): Promise<void> {
     await this.map
       ?.getLineNodes(line, nb)
@@ -59,7 +72,7 @@ export default class Game {
         return action
       })
       .then(action => {
-        console.log(`${this.lastTurnWas.name} removed ${action.amount} match(es) from line ${action.line}`)
+        console.log(`${this.currentPlayer} removed ${action.amount} match(es) from line ${action.line}`)
         this.map?.displayMap()
       })
       .catch(err => {

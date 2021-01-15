@@ -16,6 +16,13 @@ export default class Player {
     this.action = data.delete
   }
 
+  /**
+   * @name deleteAilumettes
+   * @description allows the player to delete an ailumette
+   * @param line the line
+   * @param nb the match
+   * @return {boolean}
+   */
   public deleteAilumettes(line: number, nb: number): boolean {
     return this.action(line, nb)
   }

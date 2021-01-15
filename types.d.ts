@@ -14,7 +14,7 @@ interface GameInfo {
   players: Player[]
   started: boolean
   ended: boolean
-  lastTurnWas: Partial<Player>
+  lastTurnWas: string
 }
 
 interface DeleteAction {
@@ -25,4 +25,10 @@ interface DeleteAction {
 interface Data {
   nodes: Node[]
   action: DeleteAction
+}
+
+interface Response {
+  username?: string
+  line: string
+  matches: string
 }
