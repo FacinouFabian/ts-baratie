@@ -8,6 +8,7 @@
     "start": "yarn nodemon",
     "clean": "yarn rimraf .dist",
     "build": "yarn clean && yarn babel src/ --out-dir .dist/ --extensions \".ts\" --source-maps inline --quiet --copy-files",
+    "buildocker": "docker build -t ailumette . && docker run ailumette",
     "dev": "yarn nodemon"
   },
   "author": "",

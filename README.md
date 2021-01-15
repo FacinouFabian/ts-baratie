@@ -1,14 +1,8 @@
-# pp-tefeta-save
-pp-tefeta Project 😪💔
+# pp-ailumette
 
-## Launch the app with docker
+pp-ailumette Project 😪💔
 
-- Run `npm start`. It will run the `docker build` and `docker run` commands. Then you'll be able to see the app working directly
+## if you want to launch the app with node directly (without docker)
 
-## Launch the app with node directly
-
-- Install all the dependencies using `npm i`
-- Run the app using `npm run maze1 or npm run maze2`
-- Run `npm run bad` for test a bad file extension
-- Run `npm run help` for help 
-
+- Install all the dependencies using `yarn`
+- Run the app using `yarn dev`
