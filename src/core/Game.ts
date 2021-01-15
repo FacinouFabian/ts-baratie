@@ -48,6 +48,11 @@ export default class Game {
     this.map = map
   }
 
+  /**
+   * @name nextTurn
+   * @description change the player's turn
+   * @return {Player | undefined}
+   */
   public nextTurn(): Player | undefined {
     const result: Player | undefined = this.players.find(player => {
       return player.name != this.lastTurnWas
