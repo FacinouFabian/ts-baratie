@@ -16,6 +16,7 @@ export default class Kitchen {
 
   init(): void {
     console.log(chalk.bold.blue(`[Reception] -->> opened kitchen ${this.id}`))
+    // add cooks and initialize them
     for (let i = 0; i < this.nbCookers; i++) {
       const newCook = new Cook((i + 1).toString(), this.id)
       this.cooks.push(newCook)
@@ -24,10 +25,15 @@ export default class Kitchen {
     this.cooks.map(cook => cook.init())
   }
 
-  sendStatus(): void {
+  sendStatus(status: string): void {
     const worker = cluster.workers[this.id]
     if (worker) {
-      worker.send({ status: 'ORDER READY' })
+      worker.send({ type: 'status', status })
     }
+  }
+
+  // say the kitchen is inactive for closing
+  sayInactive(): void {
+    this.sendStatus('INACTIVE')
   }
 }

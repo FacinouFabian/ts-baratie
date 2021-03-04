@@ -19,7 +19,7 @@ export default class Cook {
   sendStatus(): void {
     const worker = cluster.workers[this.kitchen]
     if (worker) {
-      worker.send({ status: 'ORDER READY' })
+      worker.send({ type: 'status', status: 'ORDER READY' })
     }
   }
 }

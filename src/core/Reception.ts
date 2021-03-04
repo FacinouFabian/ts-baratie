@@ -26,6 +26,18 @@ export default class Reception {
     this.send(message)
   }
 
+  openKitchen(kitchenId: string): void {
+    const kitchen = this.kitchens.find(item => item.id == kitchenId)
+    if (kitchen) {
+      kitchen.init()
+    }
+  }
+
+  closeKitchen(kitchenId: string): void {
+    const kitchen = this.kitchens.find(item => item.id == kitchenId)
+    kitchen?.sayInactive()
+  }
+
   // eslint-disable-next-line @typescript-eslint/ban-types
   onStatus(status: Status, callback: Function): void {
     switch (status) {
@@ -44,6 +56,7 @@ export default class Reception {
     }
   }
 
+  // send kitchens status
   status(): void {
     this.kitchens.map(kitchen => {
       console.log(chalk.blue(`[Kitchen] ${kitchen.id} -->> ${JSON.stringify(kitchen)}`))

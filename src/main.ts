@@ -29,15 +29,16 @@ const main = async () => {
       })
     }
 
+    // create Kitchen class for each forked workers
     Object.keys(cluster.workers).map(id => {
       if (cluster.workers[id]) {
         const kitchenItem = new Kitchen(id, 5)
-        kitchenItem.init()
         kitchens.push(kitchenItem)
         processesMap.push(cluster.workers[id] as cluster.Worker)
       }
     })
 
+    // handler for communication with kitchens
     const send = (message: Message) => {
       const target = processesMap.filter(item => item.id == parseInt(message.kitchenId))
       if (target) {
@@ -47,16 +48,26 @@ const main = async () => {
 
     const reception = new Reception(kitchens, send)
 
+    // init reception
     await reception.init()
 
+    // get kitchens status
     reception.status()
 
+    // send message to kitchen
     reception.sendToKitchen({
       kitchenId: '01',
       content: 'string',
     })
 
-    kitchens[2].sendStatus()
+    // open kitchen
+    reception.openKitchen('2')
+
+    // close kitchen
+    reception.closeKitchen('2')
+
+    // send status from kitchen to kitchen's cluster worker
+    kitchens[2].sendStatus('ORDER READY')
   } else {
     // messages from reception
     process.on('message', message => {
@@ -70,8 +81,15 @@ const main = async () => {
     })
     // messages from current kitchen
     cluster.worker.on('message', message => {
-      console.log(chalk.bold.red(`[KITCHEN -->> ${process.env.kitchenId}] received status`))
-      console.log(chalk.bold.green(`I received status: ${chalk.yellowBright(message.status)}`))
+      if (message.type == 'status') {
+        console.log(chalk.bold.red(`[KITCHEN -->> ${process.env.kitchenId}] received status`))
+        console.log(chalk.bold.green(`I received status: ${chalk.yellowBright(message.status)}`))
+
+        // status handler
+        if (message.status == 'INACTIVE') {
+          cluster.worker.kill()
+        }
+      }
     })
   }
 }
