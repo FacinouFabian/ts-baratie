@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import cluster from 'cluster'
 
 export default class Kitchen {
   id: string
@@ -16,9 +17,9 @@ export default class Kitchen {
   }
 
   sendStatus(): void {
-    console.log('some status')
-    /* if (process.send) {
-      process.send({ content: 'Hello' })
-    } */
+    const worker = cluster.workers[this.id]
+    if (worker) {
+      worker.send({ status: 'ORDER READY' })
+    }
   }
 }

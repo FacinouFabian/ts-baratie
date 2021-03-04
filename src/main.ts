@@ -51,7 +51,7 @@ const main = async () => {
 
     /* reception.status() */
 
-    reception.sendToKitchen({
+    /* reception.sendToKitchen({
       kitchenId: '01',
       content: 'string',
     })
@@ -60,7 +60,10 @@ const main = async () => {
       kitchenId: '02',
       content: 'string',
     })
+ */
+    kitchens[2].sendStatus()
   } else {
+    // messages from reception
     process.on('message', message => {
       if (message.kitchenId == process.env.kitchenId) {
         console.log(chalk.yellow(`[KITCHEN -->> ${process.env.kitchenId}] Message from reception`))
@@ -69,6 +72,11 @@ const main = async () => {
           process.send({ content: 'Thanks' })
         }
       }
+    })
+    // messages from current kitchen
+    cluster.worker.on('message', message => {
+      console.log(chalk.bold.red(`[KITCHEN -->> ${process.env.kitchenId}] received status`))
+      console.log(chalk.bold.green(`I received status: ${chalk.yellowBright(message.status)}`))
     })
   }
 }
