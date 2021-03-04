@@ -5,20 +5,21 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "yarn nodemon",
+    "start": "yarn build && node .dist/main",
     "clean": "yarn rimraf .dist",
-    "build": "yarn clean && yarn babel src/ --out-dir .dist/ --extensions \".ts\" --source-maps inline --quiet --copy-files",
-    "buildocker": "docker build -t ailumette . && docker run ailumette",
+    "build": "yarn clean && yarn babel src/ --out-dir .dist/ --extensions \".ts\" --source-maps inline --quiet",
     "dev": "yarn nodemon"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@babel/runtime": "^7.13.9",
     "chalk": "^4.1.0",
     "clear": "^0.1.0",
     "clui": "^0.3.6",
     "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
+    "memored": "^1.1.1",
     "minimist": "^1.2.5",
     "typescript": "^3.9.5"
   },
@@ -27,6 +28,7 @@
     "@babel/core": "^7.12.10",
     "@babel/node": "^7.12.10",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.13.9",
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
     "@types/clear": "^0.1.1",

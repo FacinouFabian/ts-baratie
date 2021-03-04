@@ -1,4 +1,4 @@
-import { Response } from '../../types'
+import { Response } from '../../definitions'
 import askUser from './questions'
 
 /**

@@ -1,6 +1,12 @@
 import Node from './src/core/Node'
 import Player from './src/core/Player'
 
+export enum Status {
+  COOKSBUSY = 'COOKS BUSY',
+  MISSINGINGREDIENTS = 'MISSING INGREDIENTS',
+  ORDERREADY = 'ORDER READY',
+}
+
 interface Point {
   x: number
   y: number

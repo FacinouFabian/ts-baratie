@@ -1,0 +1,4 @@
+{
+  "name": "VogueMerry",
+  "env": ["HOST", "PORT", "DATABASE_URL", "JWT_ENCRYPTION"]
+}

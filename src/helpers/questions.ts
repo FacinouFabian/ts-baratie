@@ -1,5 +1,5 @@
 import inquirer from 'inquirer'
-import { Response } from '../../types'
+import { Response } from '../../definitions'
 
 const questions = {
   prompt: () => {

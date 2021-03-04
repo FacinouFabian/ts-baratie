@@ -12,9 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "outDir": ".dist"
   },
-  "include": [
-    "src",
-    "types.d.ts"
-  ],
+  "include": ["src", "definitions.d.ts"],
   "exclude": ["babel.config.js"]
 }
