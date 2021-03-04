@@ -1,26 +1,23 @@
-import chalk from 'chalk'
 import cluster from 'cluster'
 
-import Kitchen from './Kitchen'
-
 export default class Cook {
-  id: string
-  kitchen: Kitchen
+  cookId: string
+  kitchen: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   orders: any[]
 
-  constructor(id: string, kitchen: Kitchen) {
-    this.id = id
+  constructor(id: string, kitchen: string) {
+    this.cookId = id
     this.kitchen = kitchen
     this.orders = []
   }
 
   init(): void {
-    console.log(`[Kitchen ${this.kitchen.id}] -->> cook ${this.id} available.`)
+    console.log(`[Kitchen ${this.kitchen}] -->> cook ${this.cookId} available.`)
   }
 
   sendStatus(): void {
-    const worker = cluster.workers[this.id]
+    const worker = cluster.workers[this.kitchen]
     if (worker) {
       worker.send({ status: 'ORDER READY' })
     }

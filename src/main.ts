@@ -49,18 +49,13 @@ const main = async () => {
 
     await reception.init()
 
-    /* reception.status() */
+    reception.status()
 
-    /* reception.sendToKitchen({
+    reception.sendToKitchen({
       kitchenId: '01',
       content: 'string',
     })
 
-    reception.sendToKitchen({
-      kitchenId: '02',
-      content: 'string',
-    })
- */
     kitchens[2].sendStatus()
   } else {
     // messages from reception

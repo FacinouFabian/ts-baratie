@@ -17,7 +17,7 @@ export default class Kitchen {
   init(): void {
     console.log(chalk.bold.blue(`[Reception] -->> opened kitchen ${this.id}`))
     for (let i = 0; i < this.nbCookers; i++) {
-      const newCook = new Cook((i + 1).toString(), this)
+      const newCook = new Cook((i + 1).toString(), this.id)
       this.cooks.push(newCook)
     }
 
