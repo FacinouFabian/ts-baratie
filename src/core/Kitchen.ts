@@ -12,20 +12,13 @@ export default class Kitchen {
   }
 
   init(): void {
-    process.on('message', message => {
-      if (message.cook == this.id) {
-        console.log(chalk.yellow(`[KITCHEN -->> ${this.id}] Message from reception`))
-        console.log(chalk.green(`I received message: ${message.content}`))
-        if (process.send) {
-          process.send({ content: 'Thanks' })
-        }
-      }
-    })
+    console.log(chalk.blue(`[Kitchen] opened kitchen -->> ${this.id}`))
   }
 
   sendStatus(): void {
-    if (process.send) {
+    console.log('some status')
+    /* if (process.send) {
       process.send({ content: 'Hello' })
-    }
+    } */
   }
 }
