@@ -14,10 +14,12 @@ type Message = {
 export default class Reception {
   kitchens: Kitchen[]
   send: Function
+  openHandler: Function
 
-  constructor(kitchens: Kitchen[], send: Function) {
-    this.kitchens = kitchens
-    this.send = send
+  constructor() {
+    this.kitchens = []
+    this.send = () => null
+    this.openHandler = () => null
   }
 
   init(): void {
@@ -28,11 +30,8 @@ export default class Reception {
     this.send(message)
   }
 
-  openKitchen(kitchenId: string): void {
-    const kitchen = this.kitchens.find(item => item.id == kitchenId)
-    if (kitchen) {
-      kitchen.init()
-    }
+  openKitchen(): void {
+    this.openHandler()
   }
 
   closeKitchen(kitchenId: string): void {

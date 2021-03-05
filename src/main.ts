@@ -19,27 +19,6 @@ const main = async () => {
   const kitchens: Kitchen[] = []
 
   if (cluster.isMaster) {
-    for (let i = 0; i < numberCPUs; i++) {
-      const myId = (i + 1).toString().padStart(2, '0')
-      const kitchen = cluster.fork({ kitchenId: myId })
-
-      kitchen.on('message', (message: { content: string }) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const sender: any = processesMap.filter(item => item.id == kitchen.id)
-        console.log(chalk.red('INFORMATION'), chalk.yellow(`[RECEPTION] Message from kitchen -->> ${sender[0].id}`))
-        console.log(chalk.green(`Content: ${message.content}`))
-      })
-    }
-
-    // create Kitchen class for each forked workers
-    Object.keys(cluster.workers).map(id => {
-      if (cluster.workers[id]) {
-        const kitchenItem = new Kitchen(id, 5)
-        kitchens.push(kitchenItem)
-        processesMap.push(cluster.workers[id] as cluster.Worker)
-      }
-    })
-
     // handler for communication with kitchens
     const send = (message: Message) => {
       if (message.kitchenId) {
@@ -53,29 +32,57 @@ const main = async () => {
       }
     }
 
-    const reception = new Reception(kitchens, send)
+    const reception = new Reception()
+
+    const openKitchen = () => {
+      if (processesMap.length < numberCPUs) {
+        const myId = (processesMap.length + 1).toString().padStart(2, '0')
+        const id = processesMap.length + 1
+        const kitchen = cluster.fork({ kitchenId: myId })
+
+        kitchen.on('message', (message: { content: string }) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const sender: any = processesMap.filter(item => item.id == kitchen.id)
+          console.log(chalk.red('INFORMATION'), chalk.yellow(`[RECEPTION] Message from kitchen -->> ${sender[0].id}`))
+          console.log(chalk.green(`Content: ${message.content}`))
+        })
+
+        if (cluster.workers[id]) {
+          const kitchenItem = new Kitchen(id.toString(), 5)
+          kitchens.push(kitchenItem)
+          reception.kitchens = kitchens
+          processesMap.push(cluster.workers[id] as cluster.Worker)
+        }
+
+        reception.kitchens.map(item => {
+          if (!item.isInit) {
+            item.init()
+          }
+        })
+      } else {
+        console.log("can't open more kitchens.")
+      }
+    }
+
+    reception.send = send
+    reception.openHandler = openKitchen
 
     // init reception
     await reception.init()
 
-    // get kitchens status
-    /* reception.status() */
+    // open kitchen
+    reception.openKitchen()
+    reception.openKitchen()
 
-    // send message to kitchen
+    reception.status()
+
     reception.sendToKitchen({
       type: 'INFORMATION',
       kitchenId: '01',
       content: 'string',
     })
 
-    /* // open kitchen
-    reception.openKitchen('2')
-
-    // close kitchen
-    reception.closeKitchen('2')
-
-    // send status from kitchen to kitchen's cluster worker
-    kitchens[2].sendStatus('ORDER READY') */
+    kitchens[1].sendStatus('ORDER READY')
   } else {
     // messages from reception
     process.on('message', (message: Message) => {
