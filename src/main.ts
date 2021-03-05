@@ -1,6 +1,7 @@
 import * as os from 'os'
 import cluster from 'cluster'
 import chalk from 'chalk'
+import _ from 'lodash'
 
 import Kitchen from './core/Kitchen'
 import Reception from './core/Reception'
@@ -12,6 +13,7 @@ type Message = {
   status?: string
 }
 
+const args: Array<number> = _.map(process.argv.slice(2), Number)
 const numberCPUs = os.cpus().length
 
 const main = async () => {
@@ -113,4 +115,11 @@ const main = async () => {
   }
 }
 
-main()
+if (args.length !== 3) {
+  console.log(chalk.red('Usage: start <cooking_time> <cooks_per_kitchen> <regenerate_ingredients_time>'))
+} else if (args.includes(NaN) || Math.min(...args) < 1 || _.sum(args) % 1 != 0) {
+  console.log(chalk.red(`Usage: [ ${args.join(', ')} ] parameters must be positive integer numbers`))
+  process.exit(0)
+} else {
+  main()
+}
