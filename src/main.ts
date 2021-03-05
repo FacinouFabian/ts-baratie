@@ -76,7 +76,7 @@ const main = async () => {
     reception.openKitchen()
     reception.openKitchen()
 
-    reception.status()
+    /* reception.status() */
 
     reception.sendToKitchen({
       type: 'INFORMATION',
