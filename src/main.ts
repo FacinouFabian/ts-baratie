@@ -6,8 +6,10 @@ import Kitchen from './core/Kitchen'
 import Reception from './core/Reception'
 
 type Message = {
-  kitchenId: string
-  content: string
+  type: 'INFORMATION' | 'STATUS'
+  kitchenId?: string
+  content?: string
+  status?: string
 }
 
 const numberCPUs = os.cpus().length
@@ -24,8 +26,8 @@ const main = async () => {
       kitchen.on('message', (message: { content: string }) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const sender: any = processesMap.filter(item => item.id == kitchen.id)
-        console.log(chalk.yellow(`[RECEPTION] Message from kitchen -->> ${sender[0].id}`))
-        console.log(chalk.green(`I received message: ${message.content}`))
+        console.log(chalk.red('INFORMATION'), chalk.yellow(`[RECEPTION] Message from kitchen -->> ${sender[0].id}`))
+        console.log(chalk.green(`Content: ${message.content}`))
       })
     }
 
@@ -40,9 +42,14 @@ const main = async () => {
 
     // handler for communication with kitchens
     const send = (message: Message) => {
-      const target = processesMap.filter(item => item.id == parseInt(message.kitchenId))
-      if (target) {
-        target[0].send(message)
+      if (message.kitchenId) {
+        const id = message.kitchenId
+        const target = processesMap.filter(item => item.id == parseInt(id))
+        if (target) {
+          target[0].send(message)
+        }
+      } else {
+        return 'Missing parameter [kitchenId]'
       }
     }
 
@@ -52,37 +59,42 @@ const main = async () => {
     await reception.init()
 
     // get kitchens status
-    reception.status()
+    /* reception.status() */
 
     // send message to kitchen
     reception.sendToKitchen({
+      type: 'INFORMATION',
       kitchenId: '01',
       content: 'string',
     })
 
-    // open kitchen
+    /* // open kitchen
     reception.openKitchen('2')
 
     // close kitchen
     reception.closeKitchen('2')
 
     // send status from kitchen to kitchen's cluster worker
-    kitchens[2].sendStatus('ORDER READY')
+    kitchens[2].sendStatus('ORDER READY') */
   } else {
     // messages from reception
-    process.on('message', message => {
-      if (message.kitchenId == process.env.kitchenId) {
-        console.log(chalk.yellow(`[KITCHEN -->> ${process.env.kitchenId}] Message from reception`))
-        console.log(chalk.green(`I received message: ${message.content}`))
+    process.on('message', (message: Message) => {
+      if (message.type == 'INFORMATION' && message.kitchenId == process.env.kitchenId) {
+        console.log(
+          chalk.red('INFORMATION'),
+          chalk.yellow(`[KITCHEN -->> ${process.env.kitchenId}] Message from reception`),
+        )
+        console.log(chalk.green(`Content: ${message.content}`))
         if (process.send) {
           process.send({ content: 'Thanks' })
         }
       }
     })
+
     // messages from current kitchen
-    cluster.worker.on('message', message => {
-      if (message.type == 'status') {
-        console.log(chalk.bold.red(`[KITCHEN -->> ${process.env.kitchenId}] received status`))
+    cluster.worker.on('message', (message: Message) => {
+      if (message.type == 'STATUS') {
+        console.log(chalk.yellow('STATUS'), chalk.bold.red(`[KITCHEN -->> ${process.env.kitchenId}]`))
         console.log(chalk.bold.green(`I received status: ${chalk.yellowBright(message.status)}`))
 
         // status handler

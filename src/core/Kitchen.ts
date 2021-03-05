@@ -28,7 +28,7 @@ export default class Kitchen {
   sendStatus(status: string): void {
     const worker = cluster.workers[this.id]
     if (worker) {
-      worker.send({ type: 'status', status })
+      worker.send({ type: 'STATUS', status })
     }
   }
 

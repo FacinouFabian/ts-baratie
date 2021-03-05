@@ -5,8 +5,10 @@ import { Status } from '../../definitions'
 import Kitchen from './Kitchen'
 
 type Message = {
-  kitchenId: string
-  content: string
+  type: 'INFORMATION' | 'STATUS'
+  kitchenId?: string
+  content?: string
+  status?: string
 }
 
 export default class Reception {
