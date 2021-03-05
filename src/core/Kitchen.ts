@@ -7,11 +7,13 @@ export default class Kitchen {
   id: string
   nbCookers: number
   cooks: Cook[]
+  isInit: boolean
 
   constructor(id: string, nbCookers: number) {
     this.id = id
     this.nbCookers = nbCookers
     this.cooks = []
+    this.isInit = false
   }
 
   init(): void {
@@ -23,12 +25,14 @@ export default class Kitchen {
     }
 
     this.cooks.map(cook => cook.init())
+
+    this.isInit = true
   }
 
   sendStatus(status: string): void {
     const worker = cluster.workers[this.id]
     if (worker) {
-      worker.send({ type: 'status', status })
+      worker.send({ type: 'STATUS', status })
     }
   }
 
