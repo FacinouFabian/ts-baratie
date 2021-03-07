@@ -34,7 +34,7 @@ const main = async () => {
       }
     }
 
-    const reception = new Reception()
+    const reception = new Reception(args)
 
     const openKitchen = () => {
       if (processesMap.length < numberCPUs) {
