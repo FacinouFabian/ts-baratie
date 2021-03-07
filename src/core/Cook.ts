@@ -24,7 +24,7 @@ export default class Cook {
   }
 
   init(): void {
-    console.log(`[Kitchen ${this.kitchen.id}] -->> cook ${this.cookId} available.`)
+    console.log(`[Kitchen ${this.kitchen}] -->> cook ${this.cookId} available.`)
   }
 
   assignDish(dish: Dish): void {
