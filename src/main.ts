@@ -2,15 +2,35 @@ import * as os from 'os'
 import cluster from 'cluster'
 import chalk from 'chalk'
 import _ from 'lodash'
+import { isMainThread } from 'worker_threads'
+import { Worker } from 'worker_threads'
 
 import Kitchen from './core/Kitchen'
 import Reception from './core/Reception'
+import Dish from './core/Dish'
 
 type Message = {
-  type: 'INFORMATION' | 'STATUS'
+  type: 'INFORMATION' | 'STATUS' | 'ADD_COOKS' | 'ASSIGN_DISH'
   kitchenId?: string
   content?: string
   status?: string
+  dish?: Dish
+}
+
+enum DishType {
+  Takoyaki = 'takoyaki',
+  Katsudon = 'katsudon',
+  Udon = 'udon',
+  Ramen = 'ramen',
+  MatchaCookie = 'matchaCookie',
+}
+
+enum Size {
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL',
+  XXL = 'XXL',
 }
 
 const args: Array<number> = _.map(process.argv.slice(2), Number)
@@ -42,25 +62,28 @@ const main = async () => {
         const id = processesMap.length + 1
         const kitchen = cluster.fork({ kitchenId: myId })
 
-        kitchen.on('message', (message: { content: string }) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const sender: any = processesMap.filter(item => item.id == kitchen.id)
-          console.log(chalk.red('INFORMATION'), chalk.yellow(`[RECEPTION] Message from kitchen -->> ${sender[0].id}`))
-          console.log(chalk.green(`Content: ${message.content}`))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        kitchen.on('message', (message: any) => {
+          if (message.type == 'ADD_KITCHEN') {
+            kitchens.push(message.kitchen)
+
+            console.log(
+              chalk.red('[RECEPTION]'),
+              chalk.yellow(`[INFORMATION] Added new kitchen -->> ${message.kitchen.id}`),
+            )
+          } else {
+            kitchens.map(item => {
+              if (item.id == message.kitchenID) {
+                item.cooks = message.kitchen.cooks
+              }
+            })
+            /* console.log(kitchens[0].cooks) */
+          }
         })
 
         if (cluster.workers[id]) {
-          const kitchenItem = new Kitchen(id.toString(), 5)
-          kitchens.push(kitchenItem)
-          reception.kitchens = kitchens
           processesMap.push(cluster.workers[id] as cluster.Worker)
         }
-
-        reception.kitchens.map(item => {
-          if (!item.isInit) {
-            item.init()
-          }
-        })
       } else {
         console.log("can't open more kitchens.")
       }
@@ -74,31 +97,56 @@ const main = async () => {
 
     // open kitchen
     reception.openKitchen()
-    reception.openKitchen()
 
+    processesMap[0].send({
+      type: 'ASSIGN_DISH',
+      dish: new Dish(1, 1, DishType.Takoyaki, Size.S),
+    })
+    /*
     reception.status()
-
-    reception.sendToKitchen({
-      type: 'INFORMATION',
-      kitchenId: '01',
-      content: 'string',
-    })
-
-    kitchens[1].sendStatus('ORDER READY')
+    kitchens[0].sendStatus('ORDER READY') */
   } else {
+    const kitchen = new Kitchen(process.env.kitchenId as string)
+    kitchen.init()
+
+    if (process.send) {
+      process.send({ type: 'ADD_KITCHEN', kitchen })
+    }
+
     // messages from reception
-    process.on('message', (message: Message) => {
-      if (message.type == 'INFORMATION' && message.kitchenId == process.env.kitchenId) {
-        console.log(
-          chalk.red('INFORMATION'),
-          chalk.yellow(`[KITCHEN -->> ${process.env.kitchenId}] Message from reception`),
-        )
-        console.log(chalk.green(`Content: ${message.content}`))
-        if (process.send) {
-          process.send({ content: 'Thanks' })
+    if (isMainThread) {
+      const worker = new Worker('./pool-setup.js', {
+        workerData: { kitchenID: process.env.kitchenId, nbCooks: 5 },
+      })
+
+      worker.on('online', () => {
+        console.log('Preparing cooks...')
+      })
+
+      worker.on('message', messageFromWorker => {
+        const cook = kitchen.cooks.find(item => item.cookId == messageFromWorker.cookId)
+        if (cook) {
+          cook.dishes = messageFromWorker.dishes
+        } else {
+          kitchen.cooks.push(messageFromWorker)
         }
-      }
-    })
+        process.send && process.send({ type: 'UPDATE_KITCHEN', kitchenID: kitchen.id, kitchen })
+      })
+
+      worker.on('error', e => console.log(e))
+
+      worker.on('exit', code => {
+        if (code !== 0) {
+          console.log(new Error(`Worker stopped with exit code ${code}`))
+        }
+      })
+
+      process.on('message', (message: Message) => {
+        if (message.type == 'ASSIGN_DISH') {
+          worker.postMessage({ threadID: 2, dish: message.dish })
+        }
+      })
+    }
 
     // messages from current kitchen
     cluster.worker.on('message', (message: Message) => {

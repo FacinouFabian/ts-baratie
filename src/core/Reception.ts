@@ -2,13 +2,15 @@
 import chalk from 'chalk'
 
 import { Status } from '../../definitions'
+import Dish from './Dish'
 import Kitchen from './Kitchen'
 
 type Message = {
-  type: 'INFORMATION' | 'STATUS'
+  type: 'INFORMATION' | 'STATUS' | 'ADD_COOKS' | 'ASSIGN_DISH'
   kitchenId?: string
   content?: string
   status?: string
+  dish?: Dish
 }
 
 export default class Reception {
@@ -60,7 +62,7 @@ export default class Reception {
   // send kitchens status
   status(): void {
     this.kitchens.map(kitchen => {
-      console.log(chalk.blue(`[Kitchen] ${kitchen.id} -->> ${JSON.stringify(kitchen)}`))
+      console.log(chalk.blue(`[Kitchen] ${kitchen.id} -->> ${JSON.stringify(kitchen, null, 2)}`))
     })
   }
 }

@@ -22,7 +22,8 @@
     "inquirer": "^7.3.3",
     "memored": "^1.1.1",
     "minimist": "^1.2.5",
-    "typescript": "^3.9.5"
+    "typescript": "^3.9.5",
+    "worker-threads-pool": "^2.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.10",
@@ -39,6 +40,7 @@
     "@types/inquirer": "^7.3.1",
     "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.21",
+    "@types/worker-threads-pool": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
     "eslint": "^7.17.0",
