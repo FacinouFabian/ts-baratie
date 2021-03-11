@@ -11,15 +11,13 @@ type Ingredient = {
 
 export default class Kitchen {
   id: string
-  nbCookers: number
   orders: Order[]
   cooks: Cook[]
   isInit: boolean
   ingredients: Ingredient[]
 
-  constructor(id: string, nbCookers: number) {
+  constructor(id: string) {
     this.id = id
-    this.nbCookers = nbCookers
     this.cooks = []
     this.isInit = false
     this.orders = []
@@ -38,27 +36,22 @@ export default class Kitchen {
     ]
   }
 
+  addCooks(cooks: Cook): void {
+    this.cooks.push(cooks)
+  }
+
   addOrder(order: Order): void {
     this.orders.push(order)
-    // TODO
-    // send order to cooks
   }
 
   init(): void {
     console.log(chalk.bold.blue(`[Reception] -->> opened kitchen ${this.id}`))
-    // add cooks and initialize them
-    for (let i = 0; i < this.nbCookers; i++) {
-      const newCook = new Cook((i + 1).toString(), { id: this.id, getSome: this.getSome })
-      this.cooks.push(newCook)
-    }
-
-    this.cooks.map(cook => cook.init())
 
     setTimeout(() => {
       this.ingredients.map(ingredient => {
         ingredient.stock++
       })
-    }, this.nbCookers * 1000)
+    }, this.cooks.length * 1000)
 
     this.isInit = true
   }

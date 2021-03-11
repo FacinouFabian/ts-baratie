@@ -7,11 +7,11 @@ enum DishType {
 }
 
 enum Size {
-  S,
-  M,
-  L,
-  XL,
-  XXL,
+  S = 'S',
+  M = 'M',
+  L = 'L',
+  XL = 'XL',
+  XXL = 'XXL',
 }
 
 export default class Dish {

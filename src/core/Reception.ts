@@ -2,13 +2,15 @@
 import chalk from 'chalk'
 
 import { Status } from '../../definitions'
+import Dish from './Dish'
 import Kitchen from './Kitchen'
 
 type Message = {
-  type: 'INFORMATION' | 'STATUS'
+  type: 'INFORMATION' | 'STATUS' | 'ADD_COOKS' | 'ASSIGN_DISH'
   kitchenId?: string
   content?: string
   status?: string
+  dish?: Dish
 }
 
 export default class Reception {

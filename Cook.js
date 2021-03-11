@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-import cluster from 'cluster'
-
-import Dish from './Dish'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const cluster = require('cluster')
 
 const recipes = {
   takoyaki: { ingredients: ['octopus', 'soja sauce'], time: 1 },
@@ -11,34 +9,29 @@ const recipes = {
   matchaCookie: { ingredients: ['dough', 'matcha', 'chocolate', 'chief love'], time: 4 },
 }
 
-export default class Cook {
-  cookId: string
-  kitchen: { id: string }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dishes: Dish[]
-
-  constructor(id: string, kitchen: { id: string }) {
+module.exports = class Cook {
+  constructor(id, kitchen) {
     this.cookId = id
     this.kitchen = kitchen
     this.dishes = []
   }
 
-  init(): void {
+  init() {
     console.log(`[Kitchen ${this.kitchen.id}] -->> cook ${this.cookId} available.`)
   }
 
-  assignDish(dish: Dish): void {
+  assignDish(dish) {
     this.dishes.push(dish)
   }
 
-  sendStatus(status: string, dish: Dish): void {
+  sendStatus(status, dish) {
     const worker = cluster.workers[this.kitchen.id]
     if (worker) {
       worker.send({ type: 'STATUS', status, dish })
     }
   }
 
-  prepareDish(dish: Dish): void {
+  prepareDish(dish) {
     const recipe = recipes[dish.type]
     const time = recipe.time * 1000
     /* recipe.ingredients.map(ingredient => {
