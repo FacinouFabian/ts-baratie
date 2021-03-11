@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import cluster from 'cluster'
 
 import Dish from './Dish'
-import Kitchen from './Kitchen'
+/* import Kitchen from './Kitchen' */
 
 const recipes = {
   takoyaki: { ingredients: ['octopus', 'soja sauce'], time: 1 },
@@ -13,18 +14,18 @@ const recipes = {
 
 export default class Cook {
   cookId: string
-  kitchen: Kitchen
+  kitchen: { id: string; getSome: Function }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dishes: Dish[]
 
-  constructor(id: string, kitchen: Kitchen) {
+  constructor(id: string, kitchen: { id: string; getSome: Function }) {
     this.cookId = id
     this.kitchen = kitchen
     this.dishes = []
   }
 
   init(): void {
-    console.log(`[Kitchen ${this.kitchen}] -->> cook ${this.cookId} available.`)
+    console.log(`[Kitchen ${this.kitchen.id}] -->> cook ${this.cookId} available.`)
   }
 
   assignDish(dish: Dish): void {

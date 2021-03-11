@@ -2,6 +2,8 @@ import * as os from 'os'
 import cluster from 'cluster'
 import chalk from 'chalk'
 import _ from 'lodash'
+import { isMainThread, parentPort } from 'worker_threads'
+import Pool from 'worker-threads-pool'
 
 import Kitchen from './core/Kitchen'
 import Reception from './core/Reception'
@@ -74,9 +76,8 @@ const main = async () => {
 
     // open kitchen
     reception.openKitchen()
-    reception.openKitchen()
 
-    /* reception.status() */
+    reception.status()
 
     reception.sendToKitchen({
       type: 'INFORMATION',
@@ -84,7 +85,7 @@ const main = async () => {
       content: 'string',
     })
 
-    kitchens[1].sendStatus('ORDER READY')
+    kitchens[0].sendStatus('ORDER READY')
   } else {
     // messages from reception
     process.on('message', (message: Message) => {
@@ -112,6 +113,34 @@ const main = async () => {
         }
       }
     })
+
+    /* if (isMainThread) {
+      const pool = new Pool({ max: 5 })
+
+      for (let i = 0; i < 5; i++) {
+        pool.acquire('./test.js', function (err, worker) {
+          if (err) throw err
+
+          worker.on('online', () => {
+            console.log(`Launching cook ${i}`)
+          })
+
+          worker.on('message', messageFromWorker => {
+            console.log(`received: ${messageFromWorker} from cook ${i}`)
+          })
+
+          worker.on('error', error => {
+            console.log(`Error from cook ${i} --> ${error}`)
+          })
+
+          worker.on('exit', code => {
+            if (code !== 0) {
+              console.log(new Error(`cook ${i} stopped with exit code ${code}`))
+            }
+          })
+        })
+      }
+    } */
   }
 }
 

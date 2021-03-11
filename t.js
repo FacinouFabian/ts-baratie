@@ -1,32 +1,42 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const { Worker, isMainThread, parentPort, workerData } = require('worker_threads')
+'use strict'
 
-class Person {
-  constructor(name, surname) {
-    this.name = name
-    this.surname = surname
-  }
+const { Worker } = require('worker_threads')
 
-  fullname() {
-    return `${this.name} ${this.surname}`
-  }
+/**
+ * Use a worker via Worker Threads module to make intensive CPU task
+ * @param filepath string relative path to the file containing intensive CPU task code
+ * @return {Promise(mixed)} a promise that contains result from intensive CPU task
+ */
+function _useWorker(filepath) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(filepath)
 
-  static whoAmI() {
-    return 'a Person'
-  }
+    worker.on('online', () => {
+      console.log('Launching intensive CPU task')
+    })
+    worker.on('message', messageFromWorker => {
+      console.log('received:', messageFromWorker)
+
+      return resolve
+    })
+
+    worker.on('error', reject)
+    worker.on('exit', code => {
+      if (code !== 0) {
+        reject(new Error(`Worker stopped with exit code ${code}`))
+      }
+    })
+  })
 }
 
-if (isMainThread) {
-  const foo = new Person('foo', 'bar')
-  const worker = new Worker(__filename, {})
+/**
+ * Use main thread while making intensive CPU task on worker
+ */
+async function main() {
+  // this log will happen every second during and after the intensive task, main thread is never blocked
 
-  worker.on('message', m => {
-    console.log(`worker message: ${JSON.stringify(m)}`)
-  })
-  worker.postMessage(foo) // foo is serialized
-} else {
-  parentPort.on('message', foo => {
-    console.log(`in worker, foo is like: ${JSON.stringify(foo)}`)
-    parentPort.postMessage(foo)
-  })
+  await _useWorker('./test.js')
 }
+
+main()

@@ -1,6 +1,5 @@
 import chalk from 'chalk'
 import cluster from 'cluster'
-import { Worker, isMainThread, parentPort } from 'worker_threads'
 
 import Order from './Order'
 import Cook from './Cook'
@@ -49,28 +48,8 @@ export default class Kitchen {
     console.log(chalk.bold.blue(`[Reception] -->> opened kitchen ${this.id}`))
     // add cooks and initialize them
     for (let i = 0; i < this.nbCookers; i++) {
-      const newCook = new Cook((i + 1).toString(), this)
+      const newCook = new Cook((i + 1).toString(), { id: this.id, getSome: this.getSome })
       this.cooks.push(newCook)
-    }
-
-    if (isMainThread) {
-      console.log('i am main')
-      /* for (let i = 0; i < this.nbCookers; i++) {
-        const myId = i.toString().padStart(2, '0')
-        const newCook = new Cook((i + 1).toString(), this)
-        const worker = new Worker(__filename, { env: { cookId: myId } })
-
-        worker.on('message', m => {
-          console.log(`worker message: ${JSON.stringify(m)}`)
-        })
-        worker.postMessage(newCook) // foo is serialized
-      } */
-    } else {
-      console.log('i am not main')
-      /* parentPort?.on('message', newCook => {
-        console.log(`in worker, newCook is like: ${JSON.stringify(newCook)}`)
-        parentPort?.postMessage(newCook)
-      }) */
     }
 
     this.cooks.map(cook => cook.init())
